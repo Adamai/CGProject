@@ -1,5 +1,8 @@
 package functions;
 
+
+import javax.swing.JFrame;
+
 public class Main {
 
 	public static void main(String[] args) {
@@ -140,5 +143,25 @@ public class Main {
 
 		float resulth[] = cc.CartesianCrdnt(hp, h1, h2, h3);
 		System.out.println("h)\n" + resulth[0] + " "+ resulth[1]);
+		
+		
+	// SEGUNDA PARTE -------------------------------------------	
+		
+		int width = 800;
+		int height = 800;
+		
+		JFrame frame = new JFrame("Projection");
+		PixelProjection pp = new PixelProjection(width, height, "calice2.byu");
+		
+		
+		frame.add(pp);
+		frame.pack();
+		//frame.setSize(width, height);
+		frame.setVisible(true);
+		frame.setResizable(false);
+		frame.setLocationRelativeTo(null);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		
 	}
 }
