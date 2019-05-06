@@ -55,6 +55,8 @@ public class PixelProjection extends JPanel{
 		float[] Uunder = new float[3];
 		float[][] Imatrice = new float[3][3];
 		float[][] vertexCoordinatesView = null;
+		float[][] vertexCoordinatesPerspec = null;
+		float[][] vertexCoordinatesScreen = null;
 		
 		try {
 			cameraReader = new BufferedReader(new FileReader(cameraPath));
@@ -136,8 +138,9 @@ public class PixelProjection extends JPanel{
 					vertexCoordinates = new float[nVertex][3];
 					vertexNormalizedCoordinates = new float[nVertex][2];		//somente x e y necessarios
 					//parte 3
-					//PAREI AQUI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Preencher vertexCoordinatesView
 					vertexCoordinatesView = new float[nVertex][3];
+					vertexCoordinatesPerspec = new float[nVertex][2];
+					vertexCoordinatesScreen = new float[nVertex][2];
 					//parte 3
 					triangleIndexes = new int[nTriangles][3];
 				} else {
@@ -157,6 +160,23 @@ public class PixelProjection extends JPanel{
 						if(vertexCoordinates[lineCount-1][1] < yMin) {
 							yMin = vertexCoordinates[lineCount-1][1];
 						}
+						
+						// PARTE 3
+						float[][] tmpMatrice = new float[3][1];		// P - C
+						tmpMatrice[0][0] = ps.PointSb(vertexCoordinates[lineCount-1], C)[0];
+						tmpMatrice[1][0] = ps.PointSb(vertexCoordinates[lineCount-1], C)[1];
+						tmpMatrice[2][0] = ps.PointSb(vertexCoordinates[lineCount-1], C)[2];
+						
+						vertexCoordinatesView[lineCount-1][0] = mm.MatricesMltply(Imatrice, tmpMatrice)[0][0];
+						vertexCoordinatesView[lineCount-1][1] = mm.MatricesMltply(Imatrice, tmpMatrice)[1][0];
+						vertexCoordinatesView[lineCount-1][2] = mm.MatricesMltply(Imatrice, tmpMatrice)[2][0];
+						
+						vertexCoordinatesPerspec[lineCount-1][0] = d * (vertexCoordinatesView[lineCount-1][0] / vertexCoordinatesView[lineCount-1][2]);
+						vertexCoordinatesPerspec[lineCount-1][1] = d * (vertexCoordinatesView[lineCount-1][1] / vertexCoordinatesView[lineCount-1][2]);
+						
+						vertexCoordinatesScreen[lineCount-1][0] = (float) Math.floor( ( ((vertexCoordinatesPerspec[lineCount-1][0]/hx) + 1) / 2 ) * width + 0.5 );
+						vertexCoordinatesScreen[lineCount-1][1] = (float) Math.floor( height - ( ((vertexCoordinatesPerspec[lineCount-1][0]/hy) + 1 ) / 2 ) * height + 0.5 );
+						// PARTE 3
 					}
 					else if(lineCount <= nVertex + nTriangles) {
 						triangleIndexes[lineCount-nVertex-1][0] = Integer.valueOf(line.split(" ")[0]);
@@ -187,10 +207,27 @@ public class PixelProjection extends JPanel{
 		JLabel label = new JLabel(new ImageIcon(canvas));
 		add(label);
 		
-		for(int i = 0; i < vertexNormalizedCoordinates.length; i++) {
-			canvas.setRGB(Math.round(vertexNormalizedCoordinates[i][0]), Math.round(vertexNormalizedCoordinates[i][1]), Color.WHITE.getRGB());
-			//System.out.println(Math.round(vertexNormalizedCoordinates[i][0]) + " "+Math.round(vertexNormalizedCoordinates[i][1]) );
+//		for(int i = 0; i < vertexNormalizedCoordinates.length; i++) {
+//			canvas.setRGB(Math.round(vertexNormalizedCoordinates[i][0]), Math.round(vertexNormalizedCoordinates[i][1]), Color.WHITE.getRGB());
+//			//System.out.println(Math.round(vertexNormalizedCoordinates[i][0]) + " "+Math.round(vertexNormalizedCoordinates[i][1]) );
+//		}
+		
+		// PARTE 3
+		for(int i = 0; i < triangleIndexes.length; i++) {
+			//vertices do triangulo abc
+			int ax = (int) vertexCoordinatesScreen[triangleIndexes[i][0] - 1][0];
+			int ay = (int) vertexCoordinatesScreen[triangleIndexes[i][0] - 1][1];
+			int bx = (int) vertexCoordinatesScreen[triangleIndexes[i][1] - 1][0];
+			int by = (int) vertexCoordinatesScreen[triangleIndexes[i][1] - 1][1];
+			int cx = (int) vertexCoordinatesScreen[triangleIndexes[i][2] - 1][0];
+			int cy = (int) vertexCoordinatesScreen[triangleIndexes[i][2] - 1][1];
+			
+			drawLine(ax, bx, ay, by);
+			drawLine(bx, cx, by, cy);
+			drawLine(cx, ax, cy, ay);
+			
 		}
+		
 		repaint();
 	}
 	
@@ -202,5 +239,22 @@ public class PixelProjection extends JPanel{
         }
         repaint();
     }
+	
+	public void drawLine(int ax, int bx, int ay, int by) {
+		// AJEITAR PARA AX MENOR QUE BXs
+		int deltax = bx - ax;
+		int deltay = by - ay;
+		double error = 0;
+		double deltaerr = Math.abs(deltay / deltax);
+		int y = ay;
+		for(int x = ax; x < bx; x++) {
+			canvas.setRGB(x, y, Color.WHITE.getRGB());
+			error = error + deltaerr;
+			if(error >= 0.5) {
+				y = y + 1;
+				error = error - 1;
+			}
+		}
+	}
 
 }
