@@ -161,16 +161,27 @@ public class PixelProjection extends JPanel {
 						vertexCoordinatesView[lineCount - 1][0] = mm.MatricesMltply(Imatrice, tmpMatrice)[0][0];
 						vertexCoordinatesView[lineCount - 1][1] = mm.MatricesMltply(Imatrice, tmpMatrice)[1][0];
 						vertexCoordinatesView[lineCount - 1][2] = mm.MatricesMltply(Imatrice, tmpMatrice)[2][0];
-
+						
+						//coordenadas perspectiva
 						vertexCoordinatesPerspec[lineCount - 1][0] = d
 								* (vertexCoordinatesView[lineCount - 1][0] / vertexCoordinatesView[lineCount - 1][2]);
 						vertexCoordinatesPerspec[lineCount - 1][1] = d
 								* (vertexCoordinatesView[lineCount - 1][1] / vertexCoordinatesView[lineCount - 1][2]);
-
-						vertexCoordinatesScreen[lineCount - 1][0] = (float) Math
-								.floor((((vertexCoordinatesPerspec[lineCount - 1][0] / hx) + 1) / 2) * width + 0.5);
-						vertexCoordinatesScreen[lineCount - 1][1] = (float) Math.floor(
-								height - (((vertexCoordinatesPerspec[lineCount - 1][0] / hy) + 1) / 2) * height + 0.5);
+						
+						//coordenadas normalizadas (usando array de perspectiva)
+						vertexCoordinatesPerspec[lineCount - 1][0] = vertexCoordinatesPerspec[lineCount - 1][0] / hx;
+						vertexCoordinatesPerspec[lineCount - 1][1] = vertexCoordinatesPerspec[lineCount - 1][1] / hy;
+						
+						//coordenadas de tela
+						vertexCoordinatesScreen[lineCount - 1][0] = (float) ((((vertexCoordinatesPerspec[lineCount - 1][0]) + 1) / 2) * width + 0.5);
+						vertexCoordinatesScreen[lineCount - 1][1] = 
+								(float) (height - (((vertexCoordinatesPerspec[lineCount - 1][1]) + 1) / 2) * height + 0.5);
+						
+						
+//						if(lineCount < 6) {
+//							System.out.println(vertexCoordinatesScreen[lineCount - 1][0] + " " + vertexCoordinatesScreen[lineCount - 1][1]);
+//						}
+						
 						// PARTE 3
 					} else if (lineCount <= nVertex + nTriangles) {
 						triangleIndexes[lineCount - nVertex - 1][0] = Integer.valueOf(line.split(" ")[0]);
@@ -194,14 +205,13 @@ public class PixelProjection extends JPanel {
 		}
 
 		canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		// System.out.println(width + " " + height);
+		
 		resetCanvas();
 		JLabel label = new JLabel(new ImageIcon(canvas));
 		add(label);
 
 //		for(int i = 0; i < vertexNormalizedCoordinates.length; i++) {
 //			canvas.setRGB(Math.round(vertexNormalizedCoordinates[i][0]), Math.round(vertexNormalizedCoordinates[i][1]), Color.WHITE.getRGB());
-//			//System.out.println(Math.round(vertexNormalizedCoordinates[i][0]) + " "+Math.round(vertexNormalizedCoordinates[i][1]) );
 //		}
 
 		// PARTE 3
@@ -264,11 +274,30 @@ public class PixelProjection extends JPanel {
 					v3y = by;
 				}
 			}
-			//decidindo qual o mais alto - FIM
-			
-			if(v2y == v3y) {	//checando se o triangulo é um bottom
-				drawBottomTriangle(v1x, v1y, v2x, v2y, v3x, v3y);
+			//decidindo qual o mais alto : (mais alto) v1 <= v2 <= v3 (mais baixo)- FIM
+			if(v1y == v2y && v2y == v3y) {
+				drawLine(v1x, v2x, v1y, v2y);
+				drawLine(v1x, v3x, v1y, v3y);
 			}
+			else if(v2y == v3y && v2y > v1y) {	//checando se o triangulo é um bottom
+				drawLine(v1x, v2x, v1y, v2y);
+				drawBottomTriangle(v1x, v1y, v2x, v2y, v3x, v3y);
+				
+			} else if(v1y == v2y && v1y < v3y) {		//checando se o triangulo é top
+				drawLine(v1x, v3x, v1y, v3y);
+				
+				drawTopTriangle(v1x, v1y, v2x, v2y, v3x, v3y);
+				
+			} else {		//dividir triangulo em 2
+				int v4x = (int)(v1x + ((float)(v2y - v1y) / (float)(v3y - v1y)) * (v3x - v1x));
+				int v4y = v2y;
+				
+				drawBottomTriangle(v1x, v1y, v2x, v2y, v4x, v4y);
+				drawTopTriangle(v2x, v2y, v4x, v4y, v3x, v3y);
+				
+			}
+			
+			
 
 		} // fim do loop de todos os triangulos
 
@@ -289,6 +318,12 @@ public class PixelProjection extends JPanel {
 		int deltax = bx - ax;
 		int deltay = by - ay;
 		double error = 0;
+		//deltay = 0 pq é scanline
+		if(deltax == 0) {
+			//System.out.println(ax + " " + bx);
+			canvas.setRGB(ax, ay, Color.WHITE.getRGB());
+			return;
+		}
 		double deltaerr = Math.abs(deltay / deltax);
 		int y = ay;
 		if (ax < bx) {
@@ -311,11 +346,49 @@ public class PixelProjection extends JPanel {
 			}
 		}
 	}
+	
+	private void drawLine2(int x1, int x2, int y1, int y2) {
+		int d = 0;
+        int dx = Math.abs(x2 - x1);
+        int dy = Math.abs(y2 - y1);
+        int dx2 = 2 * dx;
+        int dy2 = 2 * dy;
+        int ix = x1 < x2 ? 1 : -1;
+        int iy = y1 < y2 ? 1 : -1;
+        int x = x1;
+        int y = y1;
+ 
+        if (dx >= dy) {
+            while (true) {
+                canvas.setRGB(x, y, Color.WHITE.getRGB());
+                if (x == x2)
+                    break;
+                x += ix;
+                d += dy2;
+                if (d > dx) {
+                    y += iy;
+                    d -= dx2;
+                }
+            }
+        } else {
+            while (true) {
+            	canvas.setRGB(x, y, Color.WHITE.getRGB());
+                if (y == y2)
+                    break;
+                y += iy;
+                d += dx2;
+                if (d > dy) {
+                    x += ix;
+                    d -= dy2;
+                }
+            }
+        }
+	}
 
 	private void drawBottomTriangle(int ax, int ay, int bx, int by, int cx, int cy) {
 		//a é o vertice do topo, b o da esquerda e c o da direita
-		float slope1 = (bx - ax) / (by - ay);
-		float slope2 = (cx - ax) / (cy - ay);
+		float slope1 = (float)(bx - ax) / (float)(by - ay);
+		float slope2 = (float)(cx - ax) / (float)(cy - ay);
 		
 		float x1 = ax;
 		float x2 = ax;
@@ -329,13 +402,13 @@ public class PixelProjection extends JPanel {
 	
 	private void drawTopTriangle(int ax, int ay, int bx, int by, int cx, int cy) {
 		//c é o vertice de baixo, a é o vertice da esquerda e b o da direita
-		float slope1 = (cx - ax) / (cy - ay);
-		float slope2 = (cx - bx) / (cy - by);
+		float slope1 = (float)(cx - ax) / (float)(cy - ay);
+		float slope2 = (float)(cx - bx) / (float)(cy - by);
 		
 		float x1 = cx;
 		float x2 = cx;
 		
-		for(int scanY = cy; scanY > ay; scanY--) {
+		for(int scanY = cy; scanY >= ay; scanY--) {
 			drawLine((int)x1, (int)x2, scanY, scanY);
 			x1 = x1 - slope1;
 			x2 = x2 - slope2;
