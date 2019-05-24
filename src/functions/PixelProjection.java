@@ -46,6 +46,12 @@ public class PixelProjection extends JPanel {
 		float[] N = new float[3];
 		float[] V = new float[3];
 		float d = 0, hx = 0, hy = 0;
+		
+		float[] Iamb = new float[3];
+		float[] Il = new float[3];
+		float Ka = 0, Ks = 0, n = 0;
+		float[] Pl = new float[3];
+		
 
 		float[] Vlinha = new float[3];
 		float[] U = new float[3];
@@ -276,15 +282,15 @@ public class PixelProjection extends JPanel {
 			}
 			//decidindo qual o mais alto : (mais alto) v1 <= v2 <= v3 (mais baixo)- FIM
 			if(v1y == v2y && v2y == v3y) {
-				drawLine(v1x, v2x, v1y, v2y);
-				drawLine(v1x, v3x, v1y, v3y);
+				drawLine2(v1x, v2x, v1y, v2y);
+				drawLine2(v1x, v3x, v1y, v3y);
 			}
 			else if(v2y == v3y && v2y > v1y) {	//checando se o triangulo é um bottom
-				drawLine(v1x, v2x, v1y, v2y);
+				drawLine2(v1x, v2x, v1y, v2y);
 				drawBottomTriangle(v1x, v1y, v2x, v2y, v3x, v3y);
 				
 			} else if(v1y == v2y && v1y < v3y) {		//checando se o triangulo é top
-				drawLine(v1x, v3x, v1y, v3y);
+				drawLine2(v1x, v3x, v1y, v3y);
 				
 				drawTopTriangle(v1x, v1y, v2x, v2y, v3x, v3y);
 				
@@ -394,7 +400,7 @@ public class PixelProjection extends JPanel {
 		float x2 = ax;
 		
 		for(int scanY = ay; scanY <= by; scanY++) {
-			drawLine((int)x1, (int)x2, scanY, scanY);
+			drawLine2((int)x1, (int)x2, scanY, scanY);
 			x1 = x1 + slope1;
 			x2 = x2 + slope2;
 		}
@@ -409,7 +415,7 @@ public class PixelProjection extends JPanel {
 		float x2 = cx;
 		
 		for(int scanY = cy; scanY >= ay; scanY--) {
-			drawLine((int)x1, (int)x2, scanY, scanY);
+			drawLine2((int)x1, (int)x2, scanY, scanY);
 			x1 = x1 - slope1;
 			x2 = x2 - slope2;
 		}
