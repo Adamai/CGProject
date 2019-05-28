@@ -49,8 +49,10 @@ public class PixelProjection extends JPanel {
 		
 		float[] Iamb = new float[3];
 		float[] Il = new float[3];
-		float Ka = 0, Ks = 0, n = 0;
+		float Ka = 0, Ks = 0, Eta = 0;
 		float[] Pl = new float[3];
+		float[] Kd = new float[3];
+		float[] Od = new float[3];
 		
 
 		float[] Vlinha = new float[3];
