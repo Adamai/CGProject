@@ -150,7 +150,7 @@ public class Main {
 		int height = 400;
 
 		JFrame frame = new JFrame("Projection");
-		PixelProjection pp = new PixelProjection(width, height, "calice2.byu", "camera.txt");
+		PixelProjection pp = new PixelProjection(width, height, "calice2.byu", "camera.txt", "iluminacao.txt");
 
 		frame.add(pp);
 		frame.pack();
@@ -166,7 +166,7 @@ public class Main {
 			if (cmd.equals("r")) {
 				frame.dispose();
 				frame = new JFrame("Projection");
-				pp = new PixelProjection(width, height, "calice2.byu", "camera.txt");
+				pp = new PixelProjection(width, height, "calice2.byu", "camera.txt", "iluminacao.txt");
 
 				frame.add(pp);
 				frame.pack();
