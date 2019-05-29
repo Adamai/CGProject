@@ -64,6 +64,8 @@ public class PixelProjection extends JPanel {
 		float[][] vertexCoordinatesView = null;
 		float[][] vertexCoordinatesPerspec = null;
 		float[][] vertexCoordinatesScreen = null;
+		float[][] barycenterCoordinates = null;
+		float[][] triangleNormals = null;
 
 		try {
 			cameraReader = new BufferedReader(new FileReader(cameraPath));
@@ -176,11 +178,15 @@ public class PixelProjection extends JPanel {
 					nTriangles = Integer.valueOf(line.split(" ")[1]);
 					vertexCoordinates = new float[nVertex][3];
 					vertexNormalizedCoordinates = new float[nVertex][2]; // somente x e y necessarios
-					// parte 3
+					// parte 2
 					vertexCoordinatesView = new float[nVertex][3];
 					vertexCoordinatesPerspec = new float[nVertex][2];
 					vertexCoordinatesScreen = new float[nVertex][2];
-					// parte 3
+					// parte 2
+					//parte 3
+					barycenterCoordinates = new float[nTriangles][3];
+					triangleNormals = new float[nTriangles][3];
+					//parte 3
 					triangleIndexes = new int[nTriangles][3];
 				} else {
 					if (lineCount <= nVertex) {
@@ -199,8 +205,9 @@ public class PixelProjection extends JPanel {
 						if (vertexCoordinates[lineCount - 1][1] < yMin) {
 							yMin = vertexCoordinates[lineCount - 1][1];
 						}
+						
 
-						// PARTE 3
+						// PARTE 2
 						float[][] tmpMatrice = new float[3][1]; // P - C
 						tmpMatrice[0][0] = ps.PointSb(vertexCoordinates[lineCount - 1], C)[0];
 						tmpMatrice[1][0] = ps.PointSb(vertexCoordinates[lineCount - 1], C)[1];
@@ -247,6 +254,12 @@ public class PixelProjection extends JPanel {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		//PARTE 3
+		for(int i = 0; i < nTriangles; i++) { //passar pelos vertices de todos os triangulos. Calcular normal dos triangulos
+			
+		}
+		//PARTE 3
 
 		for (int i = 0; i < vertexCoordinates.length; i++) {
 			vertexNormalizedCoordinates[i][0] = ((vertexCoordinates[i][0] - xMin) / (xMax - xMin)) * (width - 1);
