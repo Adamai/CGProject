@@ -258,6 +258,7 @@ public class PixelProjection extends JPanel {
 		}
 		
 		// PARTE 3 - Loop para percorrer todos os triangulos
+		//nessa situação o V do ponto a ser utilizado posteriormente é = a -P de vista (-x, -y, -z)
 		for (int i = 0; i < triangleIndexes.length; i++) {
 			//Normal dos triangulos
 			triangleNormals[i][0] = vnz.VectorNrmlztn(cp.CrossPrdct(
@@ -272,6 +273,16 @@ public class PixelProjection extends JPanel {
 					ps.PointSb(vertexCoordinates[triangleIndexes[i][1]], vertexCoordinates[triangleIndexes[i][0]]),
 					ps.PointSb(vertexCoordinates[triangleIndexes[i][2]], vertexCoordinates[triangleIndexes[i][0]])
 					))[2];
+			//coordenadas do baricentro do triangulo
+			barycenterCoordinates[i][0] = 					
+					(vertexCoordinates[triangleIndexes[i][0]][0] + 
+							vertexCoordinates[triangleIndexes[i][1]][0] + vertexCoordinates[triangleIndexes[i][2]][0])/3;
+			barycenterCoordinates[i][1] = 					
+					(vertexCoordinates[triangleIndexes[i][0]][1] + 
+							vertexCoordinates[triangleIndexes[i][1]][1] + vertexCoordinates[triangleIndexes[i][2]][1])/3;
+			barycenterCoordinates[i][2] = 					
+					(vertexCoordinates[triangleIndexes[i][0]][2] + 
+							vertexCoordinates[triangleIndexes[i][1]][2] + vertexCoordinates[triangleIndexes[i][2]][1])/3;
 		}
 		for(int i = 0; i < vertexNormals.length; i++) {	//zerando vertexNormals para fazer somatorio e encontra-los
 			vertexNormals[i][0] = 0;
@@ -290,7 +301,7 @@ public class PixelProjection extends JPanel {
 			vertexNormals[i - 1] = vnz.VectorNrmlztn(vertexNormals[i - 1]);
 		}
 		
-
+		
 		for (int i = 0; i < vertexCoordinates.length; i++) {
 			vertexNormalizedCoordinates[i][0] = ((vertexCoordinates[i][0] - xMin) / (xMax - xMin)) * (width - 1);
 			vertexNormalizedCoordinates[i][1] = ((vertexCoordinates[i][1] - yMin) / (yMax - yMin)) * (height - 1);
