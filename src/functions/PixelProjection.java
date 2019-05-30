@@ -66,6 +66,7 @@ public class PixelProjection extends JPanel {
 		float[][] vertexCoordinatesScreen = null;
 		float[][] barycenterCoordinates = null;
 		float[][] triangleNormals = null;
+		float[][] vertexNormals = null;
 
 		try {
 			cameraReader = new BufferedReader(new FileReader(cameraPath));
@@ -186,6 +187,7 @@ public class PixelProjection extends JPanel {
 					//parte 3
 					barycenterCoordinates = new float[nTriangles][3];
 					triangleNormals = new float[nTriangles][3];
+					vertexNormals = new float[nVertex][3];
 					//parte 3
 					triangleIndexes = new int[nTriangles][3];
 				} else {
@@ -238,7 +240,7 @@ public class PixelProjection extends JPanel {
 //							System.out.println(vertexCoordinatesScreen[lineCount - 1][0] + " " + vertexCoordinatesScreen[lineCount - 1][1]);
 //						}
 
-						// PARTE 3
+						// PARTE 2
 					} else if (lineCount <= nVertex + nTriangles) {
 						triangleIndexes[lineCount - nVertex - 1][0] = Integer.valueOf(line.split(" ")[0]);
 						triangleIndexes[lineCount - nVertex - 1][1] = Integer.valueOf(line.split(" ")[1]);
@@ -255,11 +257,39 @@ public class PixelProjection extends JPanel {
 			e.printStackTrace();
 		}
 		
-		//PARTE 3
-		for(int i = 0; i < nTriangles; i++) { //passar pelos vertices de todos os triangulos. Calcular normal dos triangulos
-			
+		// PARTE 3 - Loop para percorrer todos os triangulos
+		for (int i = 0; i < triangleIndexes.length; i++) {
+			//Normal dos triangulos
+			triangleNormals[i][0] = vnz.VectorNrmlztn(cp.CrossPrdct(
+					ps.PointSb(vertexCoordinates[triangleIndexes[i][1]], vertexCoordinates[triangleIndexes[i][0]]),
+					ps.PointSb(vertexCoordinates[triangleIndexes[i][2]], vertexCoordinates[triangleIndexes[i][0]])
+					))[0];
+			triangleNormals[i][1] = vnz.VectorNrmlztn(cp.CrossPrdct(
+					ps.PointSb(vertexCoordinates[triangleIndexes[i][1]], vertexCoordinates[triangleIndexes[i][0]]),
+					ps.PointSb(vertexCoordinates[triangleIndexes[i][2]], vertexCoordinates[triangleIndexes[i][0]])
+					))[1];
+			triangleNormals[i][2] = vnz.VectorNrmlztn(cp.CrossPrdct(
+					ps.PointSb(vertexCoordinates[triangleIndexes[i][1]], vertexCoordinates[triangleIndexes[i][0]]),
+					ps.PointSb(vertexCoordinates[triangleIndexes[i][2]], vertexCoordinates[triangleIndexes[i][0]])
+					))[2];
 		}
-		//PARTE 3
+		for(int i = 0; i < vertexNormals.length; i++) {	//zerando vertexNormals para fazer somatorio e encontra-los
+			vertexNormals[i][0] = 0;
+			vertexNormals[i][1] = 0;
+			vertexNormals[i][2] = 0;
+		}
+		for(int i = 1; i <= nVertex; i++) { //somar normais de triangulos que possuem cada vertice i e normalizar
+			for(int j = 0; j < triangleIndexes.length; j++) { //somando normais de triangulos que possuem o vertice
+				if(triangleIndexes[j][0] == i || triangleIndexes[j][1] == i || triangleIndexes[j][2] == i) {
+					vertexNormals[i - 1][0] = vertexNormals[i - 1][0] + triangleNormals[j][0];
+					vertexNormals[i - 1][1] = vertexNormals[i - 1][1] + triangleNormals[j][1];
+					vertexNormals[i - 1][2] = vertexNormals[i - 1][2] + triangleNormals[j][2];
+				}
+			}
+			// normalizando a soma das normais
+			vertexNormals[i - 1] = vnz.VectorNrmlztn(vertexNormals[i - 1]);
+		}
+		
 
 		for (int i = 0; i < vertexCoordinates.length; i++) {
 			vertexNormalizedCoordinates[i][0] = ((vertexCoordinates[i][0] - xMin) / (xMax - xMin)) * (width - 1);
@@ -276,7 +306,7 @@ public class PixelProjection extends JPanel {
 //			canvas.setRGB(Math.round(vertexNormalizedCoordinates[i][0]), Math.round(vertexNormalizedCoordinates[i][1]), Color.WHITE.getRGB());
 //		}
 
-		// PARTE 3
+		// PARTE 2 e 3
 		for (int i = 0; i < triangleIndexes.length; i++) {
 			// vertices do triangulo abc
 			int ax = (int) vertexCoordinatesScreen[triangleIndexes[i][0] - 1][0];
@@ -285,6 +315,7 @@ public class PixelProjection extends JPanel {
 			int by = (int) vertexCoordinatesScreen[triangleIndexes[i][1] - 1][1];
 			int cx = (int) vertexCoordinatesScreen[triangleIndexes[i][2] - 1][0];
 			int cy = (int) vertexCoordinatesScreen[triangleIndexes[i][2] - 1][1];
+			
 
 			int v1x = 0;
 			int v1y = 0;

@@ -2,7 +2,7 @@ package functions;
 
 public class VectorSub {
 	
-	float[] VectorSb(float[] a, float[] b) {		//Produto vetorial
+	float[] VectorSb(float[] a, float[] b) {
 		if(a.length != b.length || a.length != 3) {
 			System.out.println("Vetores mal definidos");
 			return null;
