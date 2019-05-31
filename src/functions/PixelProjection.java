@@ -17,6 +17,10 @@ import javax.swing.JPanel;
 public class PixelProjection extends JPanel {
 
 	BufferedImage canvas;
+	float[][] zBuffer;
+	float[][] vertexCoordinatesView;
+	float[][] vertexCoordinatesScreen;
+	
 
 	public PixelProjection(int width, int height, String filePath, String cameraPath, String illuminationPath) {
 		BufferedReader reader;
@@ -61,13 +65,13 @@ public class PixelProjection extends JPanel {
 		float[] Vlinhaunder = new float[3];
 		float[] Uunder = new float[3];
 		float[][] Imatrice = new float[3][3];
-		float[][] vertexCoordinatesView = null;
+		vertexCoordinatesView = null;
 		float[][] vertexCoordinatesPerspec = null;
-		float[][] vertexCoordinatesScreen = null;
+		vertexCoordinatesScreen = null;
 		float[][] barycenterCoordinates = null;
 		float[][] triangleNormals = null;
 		float[][] vertexNormals = null;
-		float[][] zBuffer = null;
+		zBuffer = null;
 
 		try {
 			cameraReader = new BufferedReader(new FileReader(cameraPath));
@@ -471,6 +475,7 @@ public class PixelProjection extends JPanel {
 
 		if (dx >= dy) {
 			while (true) {
+				//if(zBuffer[x][y] < )
 				canvas.setRGB(x, y, Color.WHITE.getRGB());
 				if (x == x2)
 					break;
