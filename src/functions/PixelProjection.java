@@ -67,6 +67,7 @@ public class PixelProjection extends JPanel {
 		float[][] barycenterCoordinates = null;
 		float[][] triangleNormals = null;
 		float[][] vertexNormals = null;
+		float[][] zBuffer = null;
 
 		try {
 			cameraReader = new BufferedReader(new FileReader(cameraPath));
@@ -188,6 +189,7 @@ public class PixelProjection extends JPanel {
 					barycenterCoordinates = new float[nTriangles][3];
 					triangleNormals = new float[nTriangles][3];
 					vertexNormals = new float[nVertex][3];
+					zBuffer = new float[width][height];
 					//parte 3
 					triangleIndexes = new int[nTriangles][3];
 				} else {
@@ -260,29 +262,29 @@ public class PixelProjection extends JPanel {
 		// PARTE 3 - Loop para percorrer todos os triangulos
 		//nessa situação o V do ponto a ser utilizado posteriormente é = a -P de vista (-x, -y, -z)
 		for (int i = 0; i < triangleIndexes.length; i++) {
-			//Normal dos triangulos
+			//Normal dos triangulos (coordenadas de vista)
 			triangleNormals[i][0] = vnz.VectorNrmlztn(cp.CrossPrdct(
-					ps.PointSb(vertexCoordinates[triangleIndexes[i][1]], vertexCoordinates[triangleIndexes[i][0]]),
-					ps.PointSb(vertexCoordinates[triangleIndexes[i][2]], vertexCoordinates[triangleIndexes[i][0]])
+					ps.PointSb(vertexCoordinatesView[triangleIndexes[i][1]-1], vertexCoordinatesView[triangleIndexes[i][0]-1]),
+					ps.PointSb(vertexCoordinatesView[triangleIndexes[i][2]-1], vertexCoordinatesView[triangleIndexes[i][0]-1])
 					))[0];
 			triangleNormals[i][1] = vnz.VectorNrmlztn(cp.CrossPrdct(
-					ps.PointSb(vertexCoordinates[triangleIndexes[i][1]], vertexCoordinates[triangleIndexes[i][0]]),
-					ps.PointSb(vertexCoordinates[triangleIndexes[i][2]], vertexCoordinates[triangleIndexes[i][0]])
+					ps.PointSb(vertexCoordinatesView[triangleIndexes[i][1]-1], vertexCoordinatesView[triangleIndexes[i][0]-1]),
+					ps.PointSb(vertexCoordinatesView[triangleIndexes[i][2]-1], vertexCoordinatesView[triangleIndexes[i][0]-1])
 					))[1];
 			triangleNormals[i][2] = vnz.VectorNrmlztn(cp.CrossPrdct(
-					ps.PointSb(vertexCoordinates[triangleIndexes[i][1]], vertexCoordinates[triangleIndexes[i][0]]),
-					ps.PointSb(vertexCoordinates[triangleIndexes[i][2]], vertexCoordinates[triangleIndexes[i][0]])
+					ps.PointSb(vertexCoordinatesView[triangleIndexes[i][1]-1], vertexCoordinatesView[triangleIndexes[i][0]-1]),
+					ps.PointSb(vertexCoordinatesView[triangleIndexes[i][2]-1], vertexCoordinatesView[triangleIndexes[i][0]-1])
 					))[2];
 			//coordenadas do baricentro do triangulo
 			barycenterCoordinates[i][0] = 					
-					(vertexCoordinates[triangleIndexes[i][0]][0] + 
-							vertexCoordinates[triangleIndexes[i][1]][0] + vertexCoordinates[triangleIndexes[i][2]][0])/3;
+					(vertexCoordinatesView[triangleIndexes[i][0]-1][0] + 
+							vertexCoordinatesView[triangleIndexes[i][1]-1][0] + vertexCoordinatesView[triangleIndexes[i][2]-1][0])/3;
 			barycenterCoordinates[i][1] = 					
-					(vertexCoordinates[triangleIndexes[i][0]][1] + 
-							vertexCoordinates[triangleIndexes[i][1]][1] + vertexCoordinates[triangleIndexes[i][2]][1])/3;
+					(vertexCoordinatesView[triangleIndexes[i][0]-1][1] + 
+							vertexCoordinatesView[triangleIndexes[i][1]-1][1] + vertexCoordinatesView[triangleIndexes[i][2]-1][1])/3;
 			barycenterCoordinates[i][2] = 					
-					(vertexCoordinates[triangleIndexes[i][0]][2] + 
-							vertexCoordinates[triangleIndexes[i][1]][2] + vertexCoordinates[triangleIndexes[i][2]][1])/3;
+					(vertexCoordinatesView[triangleIndexes[i][0]-1][2] + 
+							vertexCoordinatesView[triangleIndexes[i][1]-1][2] + vertexCoordinatesView[triangleIndexes[i][2]-1][1])/3;
 		}
 		for(int i = 0; i < vertexNormals.length; i++) {	//zerando vertexNormals para fazer somatorio e encontra-los
 			vertexNormals[i][0] = 0;
@@ -299,6 +301,12 @@ public class PixelProjection extends JPanel {
 			}
 			// normalizando a soma das normais
 			vertexNormals[i - 1] = vnz.VectorNrmlztn(vertexNormals[i - 1]);
+		}
+		//preparando z-buffer
+		for(int i = 0; i < width; i++) {
+			for(int j = 0; j < height; j++) {
+				zBuffer[i][j] = Float.MAX_VALUE;
+			}
 		}
 		
 		
@@ -380,23 +388,23 @@ public class PixelProjection extends JPanel {
 			}
 			// decidindo qual o mais alto : (mais alto) v1 <= v2 <= v3 (mais baixo)- FIM
 			if (v1y == v2y && v2y == v3y) {
-				drawLine2(v1x, v2x, v1y, v2y);
-				drawLine2(v1x, v3x, v1y, v3y);
+				drawLine2(v1x, v2x, v1y, v2y, ax, ay, bx, by, cx, cy);
+				drawLine2(v1x, v3x, v1y, v3y, ax, ay, bx, by, cx, cy);
 			} else if (v2y == v3y && v2y > v1y) { // checando se o triangulo é um bottom
-				drawLine2(v1x, v2x, v1y, v2y);
-				drawBottomTriangle(v1x, v1y, v2x, v2y, v3x, v3y);
+				drawLine2(v1x, v2x, v1y, v2y, ax, ay, bx, by, cx, cy);
+				drawBottomTriangle(v1x, v1y, v2x, v2y, v3x, v3y, ax, ay, bx, by, cx, cy);
 
 			} else if (v1y == v2y && v1y < v3y) { // checando se o triangulo é top
-				drawLine2(v1x, v3x, v1y, v3y);
+				drawLine2(v1x, v3x, v1y, v3y, ax, ay, bx, by, cx, cy);
 
-				drawTopTriangle(v1x, v1y, v2x, v2y, v3x, v3y);
+				drawTopTriangle(v1x, v1y, v2x, v2y, v3x, v3y, ax, ay, bx, by, cx, cy);
 
 			} else { // dividir triangulo em 2
 				int v4x = (int) (v1x + ((float) (v2y - v1y) / (float) (v3y - v1y)) * (v3x - v1x));
 				int v4y = v2y;
 
-				drawBottomTriangle(v1x, v1y, v2x, v2y, v4x, v4y);
-				drawTopTriangle(v2x, v2y, v4x, v4y, v3x, v3y);
+				drawBottomTriangle(v1x, v1y, v2x, v2y, v4x, v4y, ax, ay, bx, by, cx, cy);
+				drawTopTriangle(v2x, v2y, v4x, v4y, v3x, v3y, ax, ay, bx, by, cx, cy);
 
 			}
 
@@ -447,8 +455,10 @@ public class PixelProjection extends JPanel {
 			}
 		}
 	}
-
-	private void drawLine2(int x1, int x2, int y1, int y2) {
+	
+	private void drawLine2(int x1, int x2, int y1, int y2, float Ax, float Ay, int Bx, int By, int Cx, int Cy) {
+		//Utilizar coords. do triangulo para achar a coord. baricentrica do ponto a ser pintado
+			//para então encontrar o Z dele em coord. de vista
 		int d = 0;
 		int dx = Math.abs(x2 - x1);
 		int dy = Math.abs(y2 - y1);
@@ -486,7 +496,7 @@ public class PixelProjection extends JPanel {
 		}
 	}
 
-	private void drawBottomTriangle(int ax, int ay, int bx, int by, int cx, int cy) {
+	private void drawBottomTriangle(int ax, int ay, int bx, int by, int cx, int cy, int Ax, int Ay, int Bx, int By, int Cx, int Cy) {
 		// a é o vertice do topo, b o da esquerda e c o da direita
 		float slope1 = (float) (bx - ax) / (float) (by - ay);
 		float slope2 = (float) (cx - ax) / (float) (cy - ay);
@@ -495,13 +505,13 @@ public class PixelProjection extends JPanel {
 		float x2 = ax;
 
 		for (int scanY = ay; scanY <= by; scanY++) {
-			drawLine2((int) x1, (int) x2, scanY, scanY);
+			drawLine2((int) x1, (int) x2, scanY, scanY, Ax,  Ay, Bx, By, Cx, Cy);
 			x1 = x1 + slope1;
 			x2 = x2 + slope2;
 		}
 	}
 
-	private void drawTopTriangle(int ax, int ay, int bx, int by, int cx, int cy) {
+	private void drawTopTriangle(int ax, int ay, int bx, int by, int cx, int cy, int Ax, int Ay, int Bx, int By, int Cx, int Cy) {
 		// c é o vertice de baixo, a é o vertice da esquerda e b o da direita
 		float slope1 = (float) (cx - ax) / (float) (cy - ay);
 		float slope2 = (float) (cx - bx) / (float) (cy - by);
@@ -510,7 +520,7 @@ public class PixelProjection extends JPanel {
 		float x2 = cx;
 
 		for (int scanY = cy; scanY >= ay; scanY--) {
-			drawLine2((int) x1, (int) x2, scanY, scanY);
+			drawLine2((int) x1, (int) x2, scanY, scanY, Ax,  Ay, Bx, By, Cx, Cy);
 			x1 = x1 - slope1;
 			x2 = x2 - slope2;
 		}
