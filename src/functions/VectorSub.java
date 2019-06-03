@@ -2,12 +2,12 @@ package functions;
 
 public class VectorSub {
 	
-	float[] VectorSb(float[] a, float[] b) {
+	double[] VectorSb(double[] a, double[] b) {
 		if(a.length != b.length || a.length != 3) {
 			System.out.println("Vetores mal definidos");
 			return null;
 		} else {
-			float[] result = new float[3];
+			double[] result = new double[3];
 			
 			result[0] = a[0] - b[0];
 			result[1] = a[1] - b[1];

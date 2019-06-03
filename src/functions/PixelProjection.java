@@ -17,20 +17,20 @@ import javax.swing.JPanel;
 public class PixelProjection extends JPanel {
 
 	BufferedImage canvas;
-	float[][] zBuffer;
-	float[][] vertexCoordinatesView;
-	float[][] vertexCoordinatesScreen;
+	double[][] zBuffer;
+	double[][] vertexCoordinatesView;
+	double[][] vertexCoordinatesScreen;
 	int[][] triangleIndexes;
 	BarycentricCoordinate bc;
-	float[] Iamb;
-	float[] Il;
-	float Ka, Ks, Eta;
-	float[] Pl;
-	float[] Kd;
-	float[] Od;
+	double[] Iamb;
+	double[] Il;
+	double Ka, Ks, Eta;
+	double[] Pl;
+	double[] Kd;
+	double[] Od;
 	VectorSum vsm = new VectorSum();
 	VectorNormalization vnz = new VectorNormalization();
-	float[][] vertexNormals;
+	double[][] vertexNormals;
 	CrossProduct cp = new CrossProduct();
 	DotProduct dp = new DotProduct();
 	
@@ -50,37 +50,37 @@ public class PixelProjection extends JPanel {
 		int lineCount = 0;
 		int nVertex = 0;
 		int nTriangles = 0;
-		float xMax = 0, yMax = 0;
-		float xMin = 99999, yMin = 99999;
-		float[][] vertexCoordinates = null;
-		float[][] vertexNormalizedCoordinates = null;
+		double xMax = 0, yMax = 0;
+		double xMin = 99999, yMin = 99999;
+		double[][] vertexCoordinates = null;
+		double[][] vertexNormalizedCoordinates = null;
 		triangleIndexes = null;
 
-		float[] C = new float[3];
-		float[] N = new float[3];
-		float[] V = new float[3];
-		float d = 0, hx = 0, hy = 0;
+		double[] C = new double[3];
+		double[] N = new double[3];
+		double[] V = new double[3];
+		double d = 0, hx = 0, hy = 0;
 
-		Iamb = new float[3];
-		Il = new float[3];
+		Iamb = new double[3];
+		Il = new double[3];
 		Ka = 0;
 		Ks = 0;
 		Eta = 0;
-		Pl = new float[3];
-		Kd = new float[3];
-		Od = new float[3];
+		Pl = new double[3];
+		Kd = new double[3];
+		Od = new double[3];
 
-		float[] Vlinha = new float[3];
-		float[] U = new float[3];
-		float[] Nunder = new float[3];
-		float[] Vlinhaunder = new float[3];
-		float[] Uunder = new float[3];
-		float[][] Imatrice = new float[3][3];
+		double[] Vlinha = new double[3];
+		double[] U = new double[3];
+		double[] Nunder = new double[3];
+		double[] Vlinhaunder = new double[3];
+		double[] Uunder = new double[3];
+		double[][] Imatrice = new double[3][3];
 		vertexCoordinatesView = null;
-		float[][] vertexCoordinatesPerspec = null;
+		double[][] vertexCoordinatesPerspec = null;
 		vertexCoordinatesScreen = null;
-		float[][] barycenterCoordinates = null;
-		float[][] triangleNormals = null;
+		double[][] barycenterCoordinates = null;
+		double[][] triangleNormals = null;
 		vertexNormals = null;
 		zBuffer = null;
 
@@ -91,23 +91,23 @@ public class PixelProjection extends JPanel {
 
 			while (line != null) {
 				if (lineCounter == 0) {
-					C[0] = Float.valueOf(line.split(" ")[0]);
-					C[1] = Float.valueOf(line.split(" ")[1]);
-					C[2] = Float.valueOf(line.split(" ")[2]);
+					C[0] = Double.valueOf(line.split(" ")[0]);
+					C[1] = Double.valueOf(line.split(" ")[1]);
+					C[2] = Double.valueOf(line.split(" ")[2]);
 				} else if (lineCounter == 1) {
-					N[0] = Float.valueOf(line.split(" ")[0]);
-					N[1] = Float.valueOf(line.split(" ")[1]);
-					N[2] = Float.valueOf(line.split(" ")[2]);
+					N[0] = Double.valueOf(line.split(" ")[0]);
+					N[1] = Double.valueOf(line.split(" ")[1]);
+					N[2] = Double.valueOf(line.split(" ")[2]);
 				} else if (lineCounter == 2) {
-					V[0] = Float.valueOf(line.split(" ")[0]);
-					V[1] = Float.valueOf(line.split(" ")[1]);
-					V[2] = Float.valueOf(line.split(" ")[2]);
+					V[0] = Double.valueOf(line.split(" ")[0]);
+					V[1] = Double.valueOf(line.split(" ")[1]);
+					V[2] = Double.valueOf(line.split(" ")[2]);
 				} else if (lineCounter == 3) {
-					d = Float.valueOf(line);
+					d = Double.valueOf(line);
 				} else if (lineCounter == 4) {
-					hx = Float.valueOf(line);
+					hx = Double.valueOf(line);
 				} else if (lineCounter == 5) {
-					hy = Float.valueOf(line);
+					hy = Double.valueOf(line);
 				}
 				lineCounter++;
 				line = cameraReader.readLine();
@@ -122,31 +122,31 @@ public class PixelProjection extends JPanel {
 
 			while (line != null) {
 				if (lineCounter == 0) {
-					Iamb[0] = Float.valueOf(line.split(" ")[0]);
-					Iamb[1] = Float.valueOf(line.split(" ")[1]);
-					Iamb[2] = Float.valueOf(line.split(" ")[2]);
+					Iamb[0] = Double.valueOf(line.split(" ")[0]);
+					Iamb[1] = Double.valueOf(line.split(" ")[1]);
+					Iamb[2] = Double.valueOf(line.split(" ")[2]);
 				} else if (lineCounter == 1) {
-					Ka = Float.valueOf(line);
+					Ka = Double.valueOf(line);
 				} else if (lineCounter == 2) {
-					Il[0] = Float.valueOf(line.split(" ")[0]);
-					Il[1] = Float.valueOf(line.split(" ")[1]);
-					Il[2] = Float.valueOf(line.split(" ")[2]);
+					Il[0] = Double.valueOf(line.split(" ")[0]);
+					Il[1] = Double.valueOf(line.split(" ")[1]);
+					Il[2] = Double.valueOf(line.split(" ")[2]);
 				} else if (lineCounter == 3) {
-					Pl[0] = Float.valueOf(line.split(" ")[0]);
-					Pl[1] = Float.valueOf(line.split(" ")[1]);
-					Pl[2] = Float.valueOf(line.split(" ")[2]);
+					Pl[0] = Double.valueOf(line.split(" ")[0]);
+					Pl[1] = Double.valueOf(line.split(" ")[1]);
+					Pl[2] = Double.valueOf(line.split(" ")[2]);
 				} else if (lineCounter == 4) {
-					Kd[0] = Float.valueOf(line.split(" ")[0]);
-					Kd[1] = Float.valueOf(line.split(" ")[1]);
-					Kd[2] = Float.valueOf(line.split(" ")[2]);
+					Kd[0] = Double.valueOf(line.split(" ")[0]);
+					Kd[1] = Double.valueOf(line.split(" ")[1]);
+					Kd[2] = Double.valueOf(line.split(" ")[2]);
 				} else if (lineCounter == 5) {
-					Od[0] = Float.valueOf(line.split(" ")[0]);
-					Od[1] = Float.valueOf(line.split(" ")[1]);
-					Od[2] = Float.valueOf(line.split(" ")[2]);
+					Od[0] = Double.valueOf(line.split(" ")[0]);
+					Od[1] = Double.valueOf(line.split(" ")[1]);
+					Od[2] = Double.valueOf(line.split(" ")[2]);
 				} else if (lineCounter == 6) {
-					Ks = Float.valueOf(line);
+					Ks = Double.valueOf(line);
 				} else if (lineCounter == 7) {
-					Eta = Float.valueOf(line);
+					Eta = Double.valueOf(line);
 				}
 				lineCounter++;
 				line = illuminationReader.readLine();
@@ -154,7 +154,7 @@ public class PixelProjection extends JPanel {
 			illuminationReader.close();
 			// terminou de ler a entrada de iluminação
 
-			float[] Ntmp = new float[3];
+			double[] Ntmp = new double[3];
 			Ntmp[0] = N[0] * (dp.DotPrdct(V, N) / dp.DotPrdct(N, N));
 			Ntmp[1] = N[1] * (dp.DotPrdct(V, N) / dp.DotPrdct(N, N));
 			Ntmp[2] = N[2] * (dp.DotPrdct(V, N) / dp.DotPrdct(N, N));
@@ -193,25 +193,25 @@ public class PixelProjection extends JPanel {
 				if (lineCount == 0) { // so rodara uma vez
 					nVertex = Integer.valueOf(line.split(" ")[0]);
 					nTriangles = Integer.valueOf(line.split(" ")[1]);
-					vertexCoordinates = new float[nVertex][3];
-					vertexNormalizedCoordinates = new float[nVertex][2]; // somente x e y necessarios
+					vertexCoordinates = new double[nVertex][3];
+					vertexNormalizedCoordinates = new double[nVertex][2]; // somente x e y necessarios
 					// parte 2
-					vertexCoordinatesView = new float[nVertex][3];
-					vertexCoordinatesPerspec = new float[nVertex][2];
-					vertexCoordinatesScreen = new float[nVertex][2];
+					vertexCoordinatesView = new double[nVertex][3];
+					vertexCoordinatesPerspec = new double[nVertex][2];
+					vertexCoordinatesScreen = new double[nVertex][2];
 					// parte 2
 					//parte 3
-					barycenterCoordinates = new float[nTriangles][3];
-					triangleNormals = new float[nTriangles][3];
-					vertexNormals = new float[nVertex][3];
-					zBuffer = new float[width][height];
+					barycenterCoordinates = new double[nTriangles][3];
+					triangleNormals = new double[nTriangles][3];
+					vertexNormals = new double[nVertex][3];
+					zBuffer = new double[width][height];
 					//parte 3
 					triangleIndexes = new int[nTriangles][3];
 				} else {
 					if (lineCount <= nVertex) {
-						vertexCoordinates[lineCount - 1][0] = Float.valueOf(line.split(" ")[0]);
-						vertexCoordinates[lineCount - 1][1] = Float.valueOf(line.split(" ")[1]);
-						vertexCoordinates[lineCount - 1][2] = Float.valueOf(line.split(" ")[2]);
+						vertexCoordinates[lineCount - 1][0] = Double.valueOf(line.split(" ")[0]);
+						vertexCoordinates[lineCount - 1][1] = Double.valueOf(line.split(" ")[1]);
+						vertexCoordinates[lineCount - 1][2] = Double.valueOf(line.split(" ")[2]);
 						if (vertexCoordinates[lineCount - 1][0] > xMax) {
 							xMax = vertexCoordinates[lineCount - 1][0];
 						}
@@ -227,7 +227,7 @@ public class PixelProjection extends JPanel {
 						
 
 						// PARTE 2
-						float[][] tmpMatrice = new float[3][1]; // P - C
+						double[][] tmpMatrice = new double[3][1]; // P - C
 						tmpMatrice[0][0] = ps.PointSb(vertexCoordinates[lineCount - 1], C)[0];
 						tmpMatrice[1][0] = ps.PointSb(vertexCoordinates[lineCount - 1], C)[1];
 						tmpMatrice[2][0] = ps.PointSb(vertexCoordinates[lineCount - 1], C)[2];
@@ -248,9 +248,9 @@ public class PixelProjection extends JPanel {
 
 						// coordenadas de tela
 						vertexCoordinatesScreen[lineCount
-								- 1][0] = (float) ((((vertexCoordinatesPerspec[lineCount - 1][0]) + 1) / 2) * width
+								- 1][0] = (double) ((((vertexCoordinatesPerspec[lineCount - 1][0]) + 1) / 2) * width
 										+ 0.5);
-						vertexCoordinatesScreen[lineCount - 1][1] = (float) (height
+						vertexCoordinatesScreen[lineCount - 1][1] = (double) (height
 								- (((vertexCoordinatesPerspec[lineCount - 1][1]) + 1) / 2) * height + 0.5);
 
 //						if(lineCount < 6) {
@@ -320,7 +320,7 @@ public class PixelProjection extends JPanel {
 		//preparando z-buffer
 		for(int i = 0; i < width; i++) {
 			for(int j = 0; j < height; j++) {
-				zBuffer[i][j] = Float.MAX_VALUE;
+				zBuffer[i][j] = Double.MAX_VALUE;
 			}
 		}
 		
@@ -415,7 +415,7 @@ public class PixelProjection extends JPanel {
 				drawTopTriangle(v1x, v1y, v2x, v2y, v3x, v3y, i);
 
 			} else { // dividir triangulo em 2
-				int v4x = (int) (v1x + ((float) (v2y - v1y) / (float) (v3y - v1y)) * (v3x - v1x));
+				int v4x = (int) (v1x + ((double) (v2y - v1y) / (double) (v3y - v1y)) * (v3x - v1x));
 				int v4y = v2y;
 
 				drawBottomTriangle(v1x, v1y, v2x, v2y, v4x, v4y, i);
@@ -483,36 +483,36 @@ public class PixelProjection extends JPanel {
 		int iy = y1 < y2 ? 1 : -1;
 		int x = x1;
 		int y = y1;
-		int[] Ia, Id, Is, I;
+		int[] Ia, I;
+		double[] Id = new double[3];
 		Ia = new int[3];
-		Is = new int[3];
-		Id = new int[3];
+		int[] Is = new int[3];
 		I = new int[3];
 		
-		float[] P = new float[2];
-		float[] barycentricCoord = new float[3];
-		float[] Pv = new float[3];
-		float[] V = new float[3];
-		float[] N = new float[3];
-		float[] L = new float[3];
-		float[] R = new float[3];
+		double[] P = new double[2];
+		double[] barycentricCoord = new double[3];
+		double[] Pv = new double[3];
+		double[] V = new double[3];
+		double[] N = new double[3];
+		double[] L = new double[3];
+		double[] R = new double[3];
 
 		if (dx >= dy) {
 			loop1:
 			while (true) {
 				//obter ponto em coordenada de vista
-				P[0] = (float)x;
-				P[1] = (float)y;
+				P[0] = (double)x;
+				P[1] = (double)y;
 				barycentricCoord = bc.BarycentricCrdnt(P, vertexCoordinatesScreen[triangleIndexes[triangleIndex][0]-1], 
 						vertexCoordinatesScreen[triangleIndexes[triangleIndex][1]-1], vertexCoordinatesScreen[triangleIndexes[triangleIndex][2]-1]);
 				Pv[0] = vertexCoordinatesView[triangleIndexes[triangleIndex][0] - 1] [0] * barycentricCoord[0] +
-							vertexCoordinatesView[triangleIndexes[triangleIndex][1] - 1] [0] * barycentricCoord[0] +
-							vertexCoordinatesView[triangleIndexes[triangleIndex][2] - 1] [0] * barycentricCoord[0];
-				Pv[1] = vertexCoordinatesView[triangleIndexes[triangleIndex][0] - 1] [1] * barycentricCoord[1] +
+							vertexCoordinatesView[triangleIndexes[triangleIndex][1] - 1] [0] * barycentricCoord[1] +
+							vertexCoordinatesView[triangleIndexes[triangleIndex][2] - 1] [0] * barycentricCoord[2];
+				Pv[1] = vertexCoordinatesView[triangleIndexes[triangleIndex][0] - 1] [1] * barycentricCoord[0] +
 						vertexCoordinatesView[triangleIndexes[triangleIndex][1] - 1] [1] * barycentricCoord[1] +
-						vertexCoordinatesView[triangleIndexes[triangleIndex][2] - 1] [1] * barycentricCoord[1];
-				Pv[2] = vertexCoordinatesView[triangleIndexes[triangleIndex][0] - 1] [2] * barycentricCoord[2] +
-						vertexCoordinatesView[triangleIndexes[triangleIndex][1] - 1] [2] * barycentricCoord[2] +
+						vertexCoordinatesView[triangleIndexes[triangleIndex][2] - 1] [1] * barycentricCoord[2];
+				Pv[2] = vertexCoordinatesView[triangleIndexes[triangleIndex][0] - 1] [2] * barycentricCoord[0] +
+						vertexCoordinatesView[triangleIndexes[triangleIndex][1] - 1] [2] * barycentricCoord[1] +
 						vertexCoordinatesView[triangleIndexes[triangleIndex][2] - 1] [2] * barycentricCoord[2];
 				//ponto em coordenada de vista Pv obtido. Comparar seu Z com o do Z-Buffer para a posição
 				if(Pv[2] < zBuffer[x][y]) {
@@ -520,66 +520,131 @@ public class PixelProjection extends JPanel {
 					zBuffer[x][y] = Pv[2];
 					//calcular a cor e pintar:
 					
-					Ia[0] = (int) (Ka * Iamb[0]);
-					Ia[1] = (int) (Ka * Iamb[1]);
-					Ia[2] = (int) (Ka * Iamb[2]);
+					boolean hasId = true;
+					boolean hasIs = true;
 					
 					V[0] = -Pv[0];
 					V[1] = -Pv[1];
 					V[2] = -Pv[2];
 					V = vnz.VectorNrmlztn(V);
 					N[0] = vertexNormals[triangleIndexes[triangleIndex][0] - 1] [0] * barycentricCoord[0] +
-							vertexNormals[triangleIndexes[triangleIndex][1] - 1] [0] * barycentricCoord[0] +
-							vertexNormals[triangleIndexes[triangleIndex][2] - 1] [0] * barycentricCoord[0];
-					N[1] = vertexNormals[triangleIndexes[triangleIndex][0] - 1] [1] * barycentricCoord[1] +
+							vertexNormals[triangleIndexes[triangleIndex][1] - 1] [0] * barycentricCoord[1] +
+							vertexNormals[triangleIndexes[triangleIndex][2] - 1] [0] * barycentricCoord[2];
+					N[1] = vertexNormals[triangleIndexes[triangleIndex][0] - 1] [1] * barycentricCoord[0] +
 							vertexNormals[triangleIndexes[triangleIndex][1] - 1] [1] * barycentricCoord[1] +
-							vertexNormals[triangleIndexes[triangleIndex][2] - 1] [1] * barycentricCoord[1];
-					N[2] = vertexNormals[triangleIndexes[triangleIndex][0] - 1] [2] * barycentricCoord[2] +
-							vertexNormals[triangleIndexes[triangleIndex][1] - 1] [2] * barycentricCoord[2] +
+							vertexNormals[triangleIndexes[triangleIndex][2] - 1] [1] * barycentricCoord[2];
+					N[2] = vertexNormals[triangleIndexes[triangleIndex][0] - 1] [2] * barycentricCoord[0] +
+							vertexNormals[triangleIndexes[triangleIndex][1] - 1] [2] * barycentricCoord[1] +
 							vertexNormals[triangleIndexes[triangleIndex][2] - 1] [2] * barycentricCoord[2];
 					N = vnz.VectorNrmlztn(N);
 					L[0] = Pl[0] - Pv[0];
 					L[1] = Pl[1] - Pv[1];
 					L[2] = Pl[2] - Pv[2];
 					L = vnz.VectorNrmlztn(L);
-					R[0] = (2 * dp.DotPrdct(N, L) * N[0]) - L[0];
-					R[1] = (2 * dp.DotPrdct(N, L) * N[1]) - L[1];
-					R[2] = (2 * dp.DotPrdct(N, L) * N[2]) - L[2];
 					
-					//casos especiais
-					if(dp.DotPrdct(N, L) < 0 && dp.DotPrdct(N, V) < 0) {
-						N[0] = -N[0];
-						N[1] = -N[1];
-						N[2] = -N[2];
+					double productNL = dp.DotPrdct(N, L);
+					double productVN = dp.DotPrdct(V, N);
+					
+					if(productNL <0) {
+						if(productVN < 0) {
+							N[0] = -N[0];
+							N[1] = -N[1];
+							N[2] = -N[2];
+							productNL = dp.DotPrdct(N, L);
+						} else {
+							Id[0] = 0; Id[1] = 0; Id[2] = 0;
+							Is[0] = 0; Is[1] = 0; Is[2] = 0;
+							hasId = false;
+							hasIs = false;
+						}
 					}
-					if(dp.DotPrdct(N, L) < 0 && dp.DotPrdct(N, V) >= 0) {
-						Id[0] = 0; Id[1] = 0; Id[2] = 0;
+					
+					double NL2 = 2 * productNL;
+					double[] aux = new double[3];
+					aux[0] = NL2 * N[0];
+					aux[1] = NL2 * N[1];
+					aux[2] = NL2 * N[2];
+					R[0] = aux[0] - L[0];
+					R[1] = aux[1] - L[1];
+					R[2] = aux[2] - L[2];
+					
+					double productRV = dp.DotPrdct(R, V);
+					
+					if(productRV < 0) {
 						Is[0] = 0; Is[1] = 0; Is[2] = 0;
-					} else {
-						Id[0] = (int) (dp.DotPrdct(N, L) * Kd[0] * Od[0] * Il[0]);
-						Id[1] = (int) (dp.DotPrdct(N, L) * Kd[1] * Od[1] * Il[1]);
-						Id[2] = (int) (dp.DotPrdct(N, L) * Kd[2] * Od[2] * Il[2]);
+						hasIs = false;
 					}
-					if(dp.DotPrdct(R, V) < 0) {
-						Is[0] = 0; Is[1] = 0; Is[2] = 0;
-					} else if( !(dp.DotPrdct(N, L) < 0 && dp.DotPrdct(N, V) >= 0) ) {
-						Is[0] = (int) (Math.pow(dp.DotPrdct(R, V), Eta) * Ks * Il[0]);
-						Is[1] = (int) (Math.pow(dp.DotPrdct(R, V), Eta) * Ks * Il[1]);
-						Is[2] = (int) (Math.pow(dp.DotPrdct(R, V), Eta) * Ks * Il[2]);
+					
+					Ia[0] = (int) (Ka * Iamb[0]);
+					Ia[1] = (int) (Ka * Iamb[1]);
+					Ia[2] = (int) (Ka * Iamb[2]);
+					
+					if(hasId) {
+						Id[0] = productNL * Kd[0] * Od[0] * Il[0];
+						Id[1] = productNL * Kd[1] * Od[1] * Il[1];
+						Id[2] = productNL * Kd[2] * Od[2] * Il[2];
 					}
-					//fim dos casos especiais
 					
-					I[0] = Ia[0] + Id[0] + Is[0];
-					I[1] = Ia[1] + Id[1] + Is[1];
-					I[2] = Ia[2] + Id[2] + Is[2];
-					if(I[0] > 255)
-						I[0] = 255;
-					if(I[1] > 255)
-						I[1] = 255;
-					if(I[2] > 255)
-						I[2] = 255;
+					if(hasIs) {
+						Is[0] = (int) (Math.pow(productRV, Eta) * Ks * Il[0]);
+						Is[1] = (int) (Math.pow(productRV, Eta) * Ks * Il[1]);
+						Is[2] = (int) (Math.pow(productRV, Eta) * Ks * Il[2]);
+					}
 					
-					canvas.setRGB(x, y, new Color(I[0], I[1], I[2]).getRGB());
+					double r = Ia[0] + Id[0] + Is[0];
+					if(r > 255) {
+						r = 255;
+					}
+					double g = Ia[1] + Id[1] + Is[1];
+					if(g > 255) {
+						g = 255;
+					}
+					double b = Ia[2] + Id[2] + Is[2];
+					if(b > 255) {
+						b = 255;
+					}
+					canvas.setRGB(x, y, new Color((int)r, (int)g, (int)b).getRGB());
+					
+//					R[0] = (2 * dp.DotPrdct(N, L) * N[0]) - L[0];
+//					R[1] = (2 * dp.DotPrdct(N, L) * N[1]) - L[1];
+//					R[2] = (2 * dp.DotPrdct(N, L) * N[2]) - L[2];
+					
+//					//casos especiais
+//					
+//					
+//					if(dp.DotPrdct(N, L) < 0 && dp.DotPrdct(N, V) < 0) {
+//						N[0] = -N[0];
+//						N[1] = -N[1];
+//						N[2] = -N[2];
+//					}
+//					if(dp.DotPrdct(N, L) < 0 && dp.DotPrdct(N, V) >= 0) {
+//						Id[0] = 0; Id[1] = 0; Id[2] = 0;
+//						Is[0] = 0; Is[1] = 0; Is[2] = 0;
+//					} else {
+//						Id[0] = (int) (dp.DotPrdct(N, L) * Kd[0] * Od[0] * Il[0]);
+//						Id[1] = (int) (dp.DotPrdct(N, L) * Kd[1] * Od[1] * Il[1]);
+//						Id[2] = (int) (dp.DotPrdct(N, L) * Kd[2] * Od[2] * Il[2]);
+//					}
+//					if(dp.DotPrdct(R, V) < 0) {
+//						Is[0] = 0; Is[1] = 0; Is[2] = 0;
+//					} else if( !(dp.DotPrdct(N, L) < 0 && dp.DotPrdct(N, V) >= 0) ) {
+//						Is[0] = (int) (Math.pow(dp.DotPrdct(R, V), Eta) * Ks * Il[0]);
+//						Is[1] = (int) (Math.pow(dp.DotPrdct(R, V), Eta) * Ks * Il[1]);
+//						Is[2] = (int) (Math.pow(dp.DotPrdct(R, V), Eta) * Ks * Il[2]);
+//					}
+//					//fim dos casos especiais
+//					
+//					I[0] = Ia[0] + Id[0] + Is[0];
+//					I[1] = Ia[1] + Id[1] + Is[1];
+//					I[2] = Ia[2] + Id[2] + Is[2];
+//					if(I[0] > 255)
+//						I[0] = 255;
+//					if(I[1] > 255)
+//						I[1] = 255;
+//					if(I[2] > 255)
+//						I[2] = 255;
+					
+					//canvas.setRGB(x, y, new Color(I[0], I[1], I[2]).getRGB());
 					if (x == x2)
 						break loop1;
 					x += ix;
@@ -604,85 +669,148 @@ public class PixelProjection extends JPanel {
 			loop2:
 			while (true) {
 				//obter ponto em coordenada de vista
-				P[0] = (float)x;
-				P[1] = (float)y;
+				P[0] = (double)x;
+				P[1] = (double)y;
 				barycentricCoord = bc.BarycentricCrdnt(P, vertexCoordinatesScreen[triangleIndexes[triangleIndex][0]-1], 
 						vertexCoordinatesScreen[triangleIndexes[triangleIndex][1]-1], vertexCoordinatesScreen[triangleIndexes[triangleIndex][2]-1]);
 				Pv[0] = vertexCoordinatesView[triangleIndexes[triangleIndex][0] - 1] [0] * barycentricCoord[0] +
-							vertexCoordinatesView[triangleIndexes[triangleIndex][1] - 1] [0] * barycentricCoord[0] +
-							vertexCoordinatesView[triangleIndexes[triangleIndex][2] - 1] [0] * barycentricCoord[0];
-				Pv[1] = vertexCoordinatesView[triangleIndexes[triangleIndex][0] - 1] [1] * barycentricCoord[1] +
+							vertexCoordinatesView[triangleIndexes[triangleIndex][1] - 1] [0] * barycentricCoord[1] +
+							vertexCoordinatesView[triangleIndexes[triangleIndex][2] - 1] [0] * barycentricCoord[2];
+				Pv[1] = vertexCoordinatesView[triangleIndexes[triangleIndex][0] - 1] [1] * barycentricCoord[0] +
 						vertexCoordinatesView[triangleIndexes[triangleIndex][1] - 1] [1] * barycentricCoord[1] +
-						vertexCoordinatesView[triangleIndexes[triangleIndex][2] - 1] [1] * barycentricCoord[1];
-				Pv[2] = vertexCoordinatesView[triangleIndexes[triangleIndex][0] - 1] [2] * barycentricCoord[2] +
-						vertexCoordinatesView[triangleIndexes[triangleIndex][1] - 1] [2] * barycentricCoord[2] +
+						vertexCoordinatesView[triangleIndexes[triangleIndex][2] - 1] [1] * barycentricCoord[2];
+				Pv[2] = vertexCoordinatesView[triangleIndexes[triangleIndex][0] - 1] [2] * barycentricCoord[0] +
+						vertexCoordinatesView[triangleIndexes[triangleIndex][1] - 1] [2] * barycentricCoord[1] +
 						vertexCoordinatesView[triangleIndexes[triangleIndex][2] - 1] [2] * barycentricCoord[2];
 				//ponto em coordenada de vista Pv obtido. Comparar seu Z com o do Z-Buffer para a posição
 				if(Pv[2] < zBuffer[x][y]) {
 					//gravando no z-buffer
 					zBuffer[x][y] = Pv[2];
-					//calcular a cor e pintar:
-
-					Ia[0] = (int) (Ka * Iamb[0]);
-					Ia[1] = (int) (Ka * Iamb[1]);
-					Ia[2] = (int) (Ka * Iamb[2]);
+//calcular a cor e pintar:
+					
+					boolean hasId = true;
+					boolean hasIs = true;
 					
 					V[0] = -Pv[0];
 					V[1] = -Pv[1];
 					V[2] = -Pv[2];
 					V = vnz.VectorNrmlztn(V);
 					N[0] = vertexNormals[triangleIndexes[triangleIndex][0] - 1] [0] * barycentricCoord[0] +
-							vertexNormals[triangleIndexes[triangleIndex][1] - 1] [0] * barycentricCoord[0] +
-							vertexNormals[triangleIndexes[triangleIndex][2] - 1] [0] * barycentricCoord[0];
-					N[1] = vertexNormals[triangleIndexes[triangleIndex][0] - 1] [1] * barycentricCoord[1] +
+							vertexNormals[triangleIndexes[triangleIndex][1] - 1] [0] * barycentricCoord[1] +
+							vertexNormals[triangleIndexes[triangleIndex][2] - 1] [0] * barycentricCoord[2];
+					N[1] = vertexNormals[triangleIndexes[triangleIndex][0] - 1] [1] * barycentricCoord[0] +
 							vertexNormals[triangleIndexes[triangleIndex][1] - 1] [1] * barycentricCoord[1] +
-							vertexNormals[triangleIndexes[triangleIndex][2] - 1] [1] * barycentricCoord[1];
-					N[2] = vertexNormals[triangleIndexes[triangleIndex][0] - 1] [2] * barycentricCoord[2] +
-							vertexNormals[triangleIndexes[triangleIndex][1] - 1] [2] * barycentricCoord[2] +
+							vertexNormals[triangleIndexes[triangleIndex][2] - 1] [1] * barycentricCoord[2];
+					N[2] = vertexNormals[triangleIndexes[triangleIndex][0] - 1] [2] * barycentricCoord[0] +
+							vertexNormals[triangleIndexes[triangleIndex][1] - 1] [2] * barycentricCoord[1] +
 							vertexNormals[triangleIndexes[triangleIndex][2] - 1] [2] * barycentricCoord[2];
 					N = vnz.VectorNrmlztn(N);
 					L[0] = Pl[0] - Pv[0];
 					L[1] = Pl[1] - Pv[1];
 					L[2] = Pl[2] - Pv[2];
 					L = vnz.VectorNrmlztn(L);
-					R[0] = (2 * dp.DotPrdct(N, L) * N[0]) - L[0];
-					R[1] = (2 * dp.DotPrdct(N, L) * N[1]) - L[1];
-					R[2] = (2 * dp.DotPrdct(N, L) * N[2]) - L[2];
 					
-					//casos especiais
-					if(dp.DotPrdct(N, L) < 0 && dp.DotPrdct(N, V) < 0) {
-						N[0] = -N[0];
-						N[1] = -N[1];
-						N[2] = -N[2];
+					double productNL = dp.DotPrdct(N, L);
+					double productVN = dp.DotPrdct(V, N);
+					
+					if(productNL <0) {
+						if(productVN < 0) {
+							N[0] = -N[0];
+							N[1] = -N[1];
+							N[2] = -N[2];
+							productNL = dp.DotPrdct(N, L);
+						} else {
+							Id[0] = 0; Id[1] = 0; Id[2] = 0;
+							Is[0] = 0; Is[1] = 0; Is[2] = 0;
+							hasId = false;
+							hasIs = false;
+						}
 					}
-					if(dp.DotPrdct(N, L) < 0 && dp.DotPrdct(N, V) >= 0) {
-						Id[0] = 0; Id[1] = 0; Id[2] = 0;
+					
+					double NL2 = 2 * productNL;
+					double[] aux = new double[3];
+					aux[0] = NL2 * N[0];
+					aux[1] = NL2 * N[1];
+					aux[2] = NL2 * N[2];
+					R[0] = aux[0] - L[0];
+					R[1] = aux[1] - L[1];
+					R[2] = aux[2] - L[2];
+					
+					double productRV = dp.DotPrdct(R, V);
+					
+					if(productRV < 0) {
 						Is[0] = 0; Is[1] = 0; Is[2] = 0;
-					} else {
-						Id[0] = (int) (dp.DotPrdct(N, L) * Kd[0] * Od[0] * Il[0]);
-						Id[1] = (int) (dp.DotPrdct(N, L) * Kd[1] * Od[1] * Il[1]);
-						Id[2] = (int) (dp.DotPrdct(N, L) * Kd[2] * Od[2] * Il[2]);
+						hasIs = false;
 					}
-					if(dp.DotPrdct(R, V) < 0) {
-						Is[0] = 0; Is[1] = 0; Is[2] = 0;
-					} else if( !(dp.DotPrdct(N, L) < 0 && dp.DotPrdct(N, V) >= 0) ) {
-						Is[0] = (int) (Math.pow(dp.DotPrdct(R, V), Eta) * Ks * Il[0]);
-						Is[1] = (int) (Math.pow(dp.DotPrdct(R, V), Eta) * Ks * Il[1]);
-						Is[2] = (int) (Math.pow(dp.DotPrdct(R, V), Eta) * Ks * Il[2]);
+					
+					Ia[0] = (int) (Ka * Iamb[0]);
+					Ia[1] = (int) (Ka * Iamb[1]);
+					Ia[2] = (int) (Ka * Iamb[2]);
+					
+					if(hasId) {
+						Id[0] = productNL * Kd[0] * Od[0] * Il[0];
+						Id[1] = productNL * Kd[1] * Od[1] * Il[1];
+						Id[2] = productNL * Kd[2] * Od[2] * Il[2];
 					}
-					//fim dos casos especiais
 					
-					I[0] = Ia[0] + Id[0] + Is[0];
-					I[1] = Ia[1] + Id[1] + Is[1];
-					I[2] = Ia[2] + Id[2] + Is[2];
-					if(I[0] > 255)
-						I[0] = 255;
-					if(I[1] > 255)
-						I[1] = 255;
-					if(I[2] > 255)
-						I[2] = 255;
+					if(hasIs) {
+						Is[0] = (int) (Math.pow(productRV, Eta) * Ks * Il[0]);
+						Is[1] = (int) (Math.pow(productRV, Eta) * Ks * Il[1]);
+						Is[2] = (int) (Math.pow(productRV, Eta) * Ks * Il[2]);
+					}
 					
-					canvas.setRGB(x, y, new Color(I[0], I[1], I[2]).getRGB());
+					double r = Ia[0] + Id[0] + Is[0];
+					if(r > 255) {
+						r = 255;
+					}
+					double g = Ia[1] + Id[1] + Is[1];
+					if(g > 255) {
+						g = 255;
+					}
+					double b = Ia[2] + Id[2] + Is[2];
+					if(b > 255) {
+						b = 255;
+					}
+					canvas.setRGB(x, y, new Color((int)r, (int)g, (int)b).getRGB());
+					
+//					R[0] = (2 * dp.DotPrdct(N, L) * N[0]) - L[0];
+//					R[1] = (2 * dp.DotPrdct(N, L) * N[1]) - L[1];
+//					R[2] = (2 * dp.DotPrdct(N, L) * N[2]) - L[2];
+					
+//					//casos especiais
+//					if(dp.DotPrdct(N, L) < 0 && dp.DotPrdct(N, V) < 0) {
+//						N[0] = -N[0];
+//						N[1] = -N[1];
+//						N[2] = -N[2];
+//					}
+//					if(dp.DotPrdct(N, L) < 0 && dp.DotPrdct(N, V) >= 0) {
+//						Id[0] = 0; Id[1] = 0; Id[2] = 0;
+//						Is[0] = 0; Is[1] = 0; Is[2] = 0;
+//					} else {
+//						Id[0] = (int) (dp.DotPrdct(N, L) * Kd[0] * Od[0] * Il[0]);
+//						Id[1] = (int) (dp.DotPrdct(N, L) * Kd[1] * Od[1] * Il[1]);
+//						Id[2] = (int) (dp.DotPrdct(N, L) * Kd[2] * Od[2] * Il[2]);
+//					}
+//					if(dp.DotPrdct(R, V) < 0) {
+//						Is[0] = 0; Is[1] = 0; Is[2] = 0;
+//					} else if( !(dp.DotPrdct(N, L) < 0 && dp.DotPrdct(N, V) >= 0) ) {
+//						Is[0] = (int) (Math.pow(dp.DotPrdct(R, V), Eta) * Ks * Il[0]);
+//						Is[1] = (int) (Math.pow(dp.DotPrdct(R, V), Eta) * Ks * Il[1]);
+//						Is[2] = (int) (Math.pow(dp.DotPrdct(R, V), Eta) * Ks * Il[2]);
+//					}
+//					//fim dos casos especiais
+//					
+//					I[0] = Ia[0] + Id[0] + Is[0];
+//					I[1] = Ia[1] + Id[1] + Is[1];
+//					I[2] = Ia[2] + Id[2] + Is[2];
+//					if(I[0] > 255)
+//						I[0] = 255;
+//					if(I[1] > 255)
+//						I[1] = 255;
+//					if(I[2] > 255)
+//						I[2] = 255;
+//					
+//					canvas.setRGB(x, y, new Color(I[0], I[1], I[2]).getRGB());
 					if (y == y2)
 						break loop2;
 					y += iy;
@@ -708,11 +836,11 @@ public class PixelProjection extends JPanel {
 
 	private void drawBottomTriangle(int ax, int ay, int bx, int by, int cx, int cy, int triangleIndex) {
 		// a é o vertice do topo, b o da esquerda e c o da direita
-		float slope1 = (float) (bx - ax) / (float) (by - ay);
-		float slope2 = (float) (cx - ax) / (float) (cy - ay);
+		double slope1 = (double) (bx - ax) / (double) (by - ay);
+		double slope2 = (double) (cx - ax) / (double) (cy - ay);
 
-		float x1 = ax;
-		float x2 = ax;
+		double x1 = ax;
+		double x2 = ax;
 
 		for (int scanY = ay; scanY <= by; scanY++) {
 			drawLine2((int) x1, (int) x2, scanY, scanY, triangleIndex);
@@ -723,11 +851,11 @@ public class PixelProjection extends JPanel {
 
 	private void drawTopTriangle(int ax, int ay, int bx, int by, int cx, int cy, int triangleIndex) {
 		// c é o vertice de baixo, a é o vertice da esquerda e b o da direita
-		float slope1 = (float) (cx - ax) / (float) (cy - ay);
-		float slope2 = (float) (cx - bx) / (float) (cy - by);
+		double slope1 = (double) (cx - ax) / (double) (cy - ay);
+		double slope2 = (double) (cx - bx) / (double) (cy - by);
 
-		float x1 = cx;
-		float x2 = cx;
+		double x1 = cx;
+		double x2 = cx;
 
 		for (int scanY = cy; scanY >= ay; scanY--) {
 			drawLine2((int) x1, (int) x2, scanY, scanY, triangleIndex);
